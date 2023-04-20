@@ -62,7 +62,16 @@ encoder 的一层，使用 nn.MultiheadAttention<br />参考 forward 函数中�
 - kdim 和 vdim 指的是输入的维度，API 无法控制中间隐层的维度（事实上降低隐层维度会损失信息）
 <a name="UWEQe"></a>
 ### [Generating wikipedia by summarizing long sequences](https://arxiv.org/abs/1801.10198)
-只留下 transformer 的 decoder，这样利于处理长句子。之后 GPT、BERT 系列基于的就是这样的架构<br />[论文调研2018](https://www.yuque.com/yanyikai/nkubkf/ki104r?view=doc_embed&inner=UWEQe)
+只留下 transformer 的 decoder，这样利于处理长句子。之后 GPT、BERT 系列基于的就是这样的架构<br />
+
+Transformer 去掉 encoder，只使用 decoder，更利于长句子
+- Transformer：输入序列 -> 输出序列
+- Decoder：输入序列与输出序列拼接，中间加 deliminator，整个输入 decoder，做下一词预测
+
+大概 decoder 中，对于 encoder 处理的那个自注意力层也删掉了？
+其他细节
+- KV 在 attention 前做了卷积，减少 token 数量
+- 输入序列切分成多个窗口，每个窗口内做 attention，以实现规模化（计算量相对序列长度线性）
 <a name="Z7yeR"></a>
 ### [Generating long sequences with sparse transformers](https://arxiv.org/abs/1904.10509)
 注意力序列长度记为$n$，传统transformer中注意力计算$n^2$的复杂度降低到$n\sqrt[p]{n}$
