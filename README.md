@@ -262,12 +262,13 @@ Swin transformer 视觉领域 transformer<br />![image.png](https://cdn.nlark.co
 ## 多模态
 <a name="Q7zZX"></a>
 ### CLIP
-[论文调研2021](https://www.yuque.com/yanyikai/nkubkf/ois9p1?view=doc_embed&inner=C7viZ)
+CLIP，直接用自然语言作为 CV 的类别，无需固定类别范围
+具体的训练任务是，给一堆文本，判断哪个文本与图片最匹配（contrasive），而非直接预测文本
 <a name="MbGnj"></a>
 ## 图像生成（扩散模型）
 <a name="N1rrQ"></a>
 ### 基本原理
-[Diffusion Model](https://www.yuque.com/yanyikai/vbymv2/twe6s0tlfclpfbh8?view=doc_embed)
+[Diffusion Model](diffusion.md)
 <a name="nuibY"></a>
 ### Stable Diffusion
 > [High-Resolution Image Synthesis With Latent Diffusion Models](https://openaccess.thecvf.com/content/CVPR2022/html/Rombach_High-Resolution_Image_Synthesis_With_Latent_Diffusion_Models_CVPR_2022_paper.html)
