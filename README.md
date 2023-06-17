@@ -7,16 +7,16 @@
 ## [Attention Is All You Need](https://arxiv.org/abs/1706.03762)
 <a name="LA3Wc"></a>
 ### 数据流动
-GIF 取自：[https://ai.googleblog.com/2017/08/transformer-novel-neural-network.html](https://ai.googleblog.com/2017/08/transformer-novel-neural-network.html)![transform20fps.gif](https://cdn.nlark.com/yuque/0/2023/gif/2787610/1678867295474-96187ab2-f998-43c8-8298-6b614f1076b9.gif#averageHue=%23fefefe&clientId=u79566828-de0a-4&from=paste&height=453&id=u6bcad819&name=transform20fps.gif&originHeight=566&originWidth=640&originalType=binary&ratio=1.25&rotation=0&showTitle=false&size=1006182&status=done&style=none&taskId=ud5a99f54-2a00-478c-b43c-0ecf5dadd66&title=&width=512)
+GIF 取自：[https://ai.googleblog.com/2017/08/transformer-novel-neural-network.html](https://ai.googleblog.com/2017/08/transformer-novel-neural-network.html)![transform20fps.gif](figures/transform20fps.gif)
 <a name="V1leS"></a>
 ### 模型架构
-![image.png](https://cdn.nlark.com/yuque/0/2022/png/2787610/1648196312697-06c7664a-06e9-4a41-b0d9-0dd9e59b0c07.png#averageHue=%23dccda8&clientId=u5af0f650-92eb-4&from=paste&height=601&id=u5e4cb65b&name=image.png&originHeight=1000&originWidth=712&originalType=binary&ratio=1&rotation=0&showTitle=false&size=128860&status=done&style=none&taskId=u26cbf7e5-d431-4445-ae09-ebfad61d8e5&title=&width=428)
+![image.png](figures/transformer.png)
 <a name="mVtul"></a>
 #### 编码器与解码器的连接
 输入编码 N 层后，最后一层的输出被喂入所有的层的 decoder（作为 K 和 V）<br />![image.png](https://cdn.nlark.com/yuque/0/2023/png/2787610/1678867546167-c18d11ba-4da4-4884-b09b-77281d47979c.png#averageHue=%23dcead9&clientId=u79566828-de0a-4&from=paste&height=381&id=uff214776&name=image.png&originHeight=538&originWidth=742&originalType=binary&ratio=1.25&rotation=0&showTitle=false&size=150061&status=done&style=none&taskId=u343e994c-0a41-4974-9c76-d537928e45e&title=&width=525.6000366210938)
 <a name="N8DMc"></a>
 #### 解码器的自回归与 mask
-![image.png](https://cdn.nlark.com/yuque/0/2023/png/2787610/1678867623376-43d9b404-9155-47a6-bcd3-5eaa0aee4c71.png#averageHue=%23ddd8d7&clientId=u79566828-de0a-4&from=paste&height=214&id=u0ba31d07&name=image.png&originHeight=321&originWidth=522&originalType=binary&ratio=1.25&rotation=0&showTitle=false&size=59504&status=done&style=none&taskId=u7d516cd2-4ce8-4083-978e-21e49d1b862&title=&width=348.6000061035156)
+![image.png](figures/encoder-decoder.png)
 
 - 预测阶段：解码器输入当前已经输出的内容，在最后一个词的位置输出下一个词的 embedding
 - 训练阶段：mask 掉后面的所有词（的 attention score）
@@ -27,7 +27,7 @@ GIF 取自：[https://ai.googleblog.com/2017/08/transformer-novel-neural-network
 - 输出维度固定 512
 <a name="qOE3W"></a>
 #### 多头注意力机制
-![image.png](https://cdn.nlark.com/yuque/0/2022/png/2787610/1648197512837-23be3b21-0c2b-4e87-bae5-de75b090fa13.png#averageHue=%23f4f3f2&clientId=u5af0f650-92eb-4&from=paste&height=274&id=u4f3ff77d&name=image.png&originHeight=548&originWidth=1019&originalType=binary&ratio=1&rotation=0&showTitle=false&size=94611&status=done&style=none&taskId=ue270fb23-5726-4da0-b949-c8195b1359f&title=&width=509.5)
+![image.png](figures/mha.png)
 
 - 输入 query 和 key（等长 d，记为 Q，K），attention score 为 $\text{softmax}\frac{\langle Q,K\rangle}{\sqrt{d}}$
 - multi-head：首先用可学习的参数把 Q K V 多次线性投影到低维，然后每组独立的做 attention，最终拼接输出。
