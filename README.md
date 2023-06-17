@@ -126,14 +126,14 @@ Transformer 去掉 encoder，只使用 decoder，更利于长句子
 ## BERT
 <a name="sM8ft"></a>
 ### [BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding](https://arxiv.org/abs/1810.04805)
-![image.png](https://cdn.nlark.com/yuque/0/2023/png/2787610/1679297551356-e8099125-27a6-4378-8c3d-687888b6d197.png#averageHue=%23e5d796&clientId=u82313d2a-134a-4&from=paste&height=432&id=ud891242c&name=image.png&originHeight=540&originWidth=1362&originalType=binary&ratio=1.25&rotation=0&showTitle=false&size=117599&status=done&style=none&taskId=u22cbd40d-1081-4b6e-b634-7c18c9ea05b&title=&width=1089.6)<br />发布于 GPT-1 之后，相比 GPT-1 下一词预测的任务，BERT 使用双向的注意力机制，预测句中的词（完形填空）
+![image.png](figures/bert.png)<br />发布于 GPT-1 之后，相比 GPT-1 下一词预测的任务，BERT 使用双向的注意力机制，预测句中的词（完形填空）
 
 **双向注意力机制：**GPT 中每个词只能从之前的词提取注意力，“看不到”后面的词，BERT 则取消了这一限制。或者说，GPT 是只使用 decoder，BERT 是只是用 encoder。<br />**句子输入构建：**
 
 - 用SEP分割句子（作为每个子句的结尾），用CLS聚合句子信息
 - 多了一个表示词属于哪个子句的 segment encoding
 
-![image.png](https://cdn.nlark.com/yuque/0/2023/png/2787610/1679298491032-3510f038-0f50-4e3d-adbf-49cf499cc0d3.png#averageHue=%23eae4df&clientId=u82313d2a-134a-4&from=paste&height=147&id=uc86fbb71&name=image.png&originHeight=315&originWidth=1028&originalType=binary&ratio=1.25&rotation=0&showTitle=false&size=33158&status=done&style=none&taskId=uc6fbc4d5-d8fd-47f3-92d1-b9536ff06e5&title=&width=479)<br />**预训练任务：**
+![image.png](figures/bert-encoding.png)<br />**预训练任务：**
 
 - 【完形填空】随机选取句子中15%的单词来预测。被选择预测的单词不一定被替换成 MASK token（因为下游任务没有这个 token，带来了一些不一致性）：80%替换成MASK token；10%替换成随机token；10%不替换。
 - 【NSP，下句预测】从单语语料库中选择很多句子AB，50%的句子B直接出现在A后（正样本），50%的句子B随机选取（负样本）。通过这个任务，CLS聚合了整个句子的信息，用于在下游任务做句子分类。
@@ -149,9 +149,9 @@ Transformer 去掉 encoder，只使用 decoder，更利于长句子
 ### GPT-1
 > [Improving language understanding by generative pre-training](https://www.cs.ubc.ca/~amuham01/LING530/papers/radford2018improving.pdf)
 
-**预训练任务：**next-word-prediction，![image.png](https://cdn.nlark.com/yuque/0/2023/png/2787610/1679022244443-2ff1a2dc-88cb-443e-b0eb-7f32e8453e06.png#averageHue=%23faf8f7&clientId=u3355525d-c5fb-4&from=paste&height=36&id=u015abb94&name=image.png&originHeight=67&originWidth=508&originalType=binary&ratio=1.25&rotation=0&showTitle=false&size=10545&status=done&style=none&taskId=u6af44f37-433f-44b2-813f-f801217249d&title=&width=271.40000915527344)<br />**微调：**预训练与监督任务的 loss 加权，![image.png](https://cdn.nlark.com/yuque/0/2023/png/2787610/1679023945338-b4bcca76-1060-4d98-8590-db3d467980cc.png#averageHue=%23f6f3f1&clientId=u3355525d-c5fb-4&from=paste&height=27&id=uc89e66ea&name=image.png&originHeight=50&originWidth=455&originalType=binary&ratio=1.25&rotation=0&showTitle=false&size=5655&status=done&style=none&taskId=ue9eb3c52-69c7-4a12-96ac-720b16b2b23&title=&width=249)
+**预训练任务：**next-word-prediction，![image.png](figures/next-word-prediction.png)<br />**微调：**预训练与监督任务的 loss 加权，![image.png](figures/next-word-prediction-weighted.png)
 
-**微调任务构建：**修改输入，添加 delim，start，extract，避免修改模型结构，方便知识迁移<br />![image.png](https://cdn.nlark.com/yuque/0/2023/png/2787610/1679024673946-3d369894-935e-417f-a010-848271465c0a.png#averageHue=%23c1c193&clientId=u3355525d-c5fb-4&from=paste&height=218&id=u578660f1&name=image.png&originHeight=590&originWidth=1461&originalType=binary&ratio=1.25&rotation=0&showTitle=false&size=143392&status=done&style=none&taskId=u721c5045-54e7-4d2a-8c02-8ce45ec53b1&title=&width=539)<br />**模型与优化细节：**
+**微调任务构建：**修改输入，添加 delim，start，extract，避免修改模型结构，方便知识迁移<br />![image.png](figures/bert-task.png)<br />**模型与优化细节：**
 
 - 只有 decoder
 - 12层，特征768-dim（MLP隐层维度取四倍），12个注意力头
@@ -175,7 +175,7 @@ Transformer 去掉 encoder，只使用 decoder，更利于长句子
 
 - 在每个sub-block前而非后做LayerNorm，并且在最后一层的输出前加一个LayerNorm（我的理解是，等价于在输入embedding层也加了LayerNorm）
 
-![image.png](https://cdn.nlark.com/yuque/0/2023/png/2787610/1679302681045-7c63c3a5-c44f-440b-a08d-87791b7993ea.png#averageHue=%23ece8e5&clientId=u82313d2a-134a-4&from=paste&height=103&id=u41bcf344&name=image.png&originHeight=136&originWidth=770&originalType=binary&ratio=1.25&rotation=0&showTitle=false&size=24379&status=done&style=none&taskId=ud3141c77-1eb8-492a-b244-68e6114138a&title=&width=585)
+![image.png](figures/transformer-code.png)
 
 - 模型参数的初始化考虑了抵消不同深度中残差连接加上的值（放缩为$1/\sqrt{残差连接层数}$倍）
 - 48层，特征1600-dim（MLP隐层维度取四倍），12个注意力头，1542M参数
@@ -185,12 +185,12 @@ Transformer 去掉 encoder，只使用 decoder，更利于长句子
 - 用Bloom filters计算测试集中在训练集中出现的8-grams的比例，发现1-6%的重合度（它们与自己的训练集平均重合度就达到了5.9%）
 - 最大的GPT-2模型仍然underfit WebText数据集，这也为更大的GPT-3模型提供了motivation
 
-![image.png](https://cdn.nlark.com/yuque/0/2023/png/2787610/1679366543644-f224775e-b021-4054-852f-0e5dc1f139fe.png#averageHue=%23f9f8f7&clientId=u7ec223fa-1617-4&from=paste&height=227&id=uf458fde3&name=image.png&originHeight=623&originWidth=671&originalType=binary&ratio=1.25&rotation=0&showTitle=false&size=40654&status=done&style=none&taskId=u27c7be7a-7d8c-4aae-80ac-37053d11965&title=&width=244.79998779296875)
+![image.png](figures/gpt-chart.png)
 <a name="QN5XO"></a>
 ### GPT-3
 > [Language models are few-shot learners](https://proceedings.neurips.cc/paper/2020/hash/1457c0d6bfcb4967418bfb8ac142f64a-Abstract.html)
 
-![image.png](https://cdn.nlark.com/yuque/0/2023/png/2787610/1679370583251-dbeaf5bc-35a6-4cb3-ba42-eb21b45c8fe5.png#averageHue=%23f8f7f6&clientId=u7ec223fa-1617-4&from=paste&height=305&id=HQUGk&name=image.png&originHeight=381&originWidth=1484&originalType=binary&ratio=1.25&rotation=0&showTitle=false&size=272064&status=done&style=none&taskId=u5adf781a-f6d8-4596-8ec6-286f6330477&title=&width=1187.2)<br />在GPT-2的技术基础上，大幅提升模型规模，**并且使用了Few-Shot的方法，**验证了如下几个发现：
+![image.png](figures/gpt-chart2.png)<br />在GPT-2的技术基础上，大幅提升模型规模，**并且使用了Few-Shot的方法，**验证了如下几个发现：
 
 - 模型性能随模型规模而提升
 - 大模型是一种meta-learner：
@@ -223,18 +223,18 @@ GPT-3的基础技术+第三方数据集+RLHF<br />**Predictable Scaling：**用�
 ## 图像识别
 <a name="wz6ps"></a>
 ### [Swin transformer: Hierarchical vision transformer using shifted windows](http://openaccess.thecvf.com/content/ICCV2021/html/Liu_Swin_Transformer_Hierarchical_Vision_Transformer_Using_Shifted_Windows_ICCV_2021_paper.html)
-Swin transformer 视觉领域 transformer<br />![image.png](https://cdn.nlark.com/yuque/0/2022/png/2787610/1648451366855-0f37b771-1a2a-44a1-aa89-04e405a069c5.png#averageHue=%23efecea&clientId=u0c9f4eae-258d-4&from=paste&height=250&id=u7aa3ee17&name=image.png&originHeight=500&originWidth=915&originalType=binary&ratio=1&rotation=0&showTitle=false&size=455830&status=done&style=none&taskId=uecdc7c05-a575-4b8a-bf88-e59a01c2382&title=&width=457.5)
+Swin transformer 视觉领域 transformer<br />![image.png](figures/swin.png)
 
 - ViT：把图像固定的分为 16x16 像素点的 patch，然后全局的做自注意力（复杂度是平方）
 - Swin：把图像分为不同层级，每个层级的 patch 大小不同，一组里局部的做注意力，这些多尺寸的特征图很适配各种图像任务的模型架构
 
-![image.png](https://cdn.nlark.com/yuque/0/2022/png/2787610/1648451517053-2ca1991d-9e43-4110-8fcd-ddd920153ec7.png#averageHue=%23fdfdfd&clientId=u0c9f4eae-258d-4&from=paste&height=358&id=udb69ce1a&name=image.png&originHeight=716&originWidth=1148&originalType=binary&ratio=1&rotation=0&showTitle=false&size=301136&status=done&style=none&taskId=u25ce89f9-3b16-47cc-8869-df0d1c3c276&title=&width=574)<br />上图是目标检测，下图是语义分割，可以看到都是由不同维度的特征图参与，Swin 不同维度的 attention 提取的特征正好可以使用
+![image.png](figures/unet.png)<br />上图是目标检测，下图是语义分割，可以看到都是由不同维度的特征图参与，Swin 不同维度的 attention 提取的特征正好可以使用
 <a name="CFKyN"></a>
 #### window shift
-![image.png](https://cdn.nlark.com/yuque/0/2022/png/2787610/1648452027720-cee71b89-b0e4-4430-ae4f-53113208c146.png#averageHue=%23d8d5c6&clientId=u0c9f4eae-258d-4&from=paste&height=174&id=uc99434b6&name=image.png&originHeight=347&originWidth=913&originalType=binary&ratio=1&rotation=0&showTitle=false&size=384853&status=done&style=none&taskId=u9c103bfe-5a0c-4c69-92b0-f82cae8a0d6&title=&width=456.5)<br />把中窗口位置 shift，来让注意力不会被窗口分割
+![image.png](figures/swin2.png)<br />把中窗口位置 shift，来让注意力不会被窗口分割
 <a name="zFI97"></a>
 #### 模型架构
-![image.png](https://cdn.nlark.com/yuque/0/2022/png/2787610/1648452156167-d7dac482-8288-4076-a0ff-dfe9f64dcbed.png#averageHue=%23f0f0ef&clientId=u0c9f4eae-258d-4&from=paste&height=233&id=u78072f3c&name=image.png&originHeight=465&originWidth=1481&originalType=binary&ratio=1&rotation=0&showTitle=false&size=102833&status=done&style=none&taskId=u570faf1e-de67-46f1-a54d-54f4801fcfc&title=&width=740.5)
+![image.png](figures/swin3.png)
 
 1. patch partition：打成 4x4 的 patch，48=4*4*3 是一个 patch 的像素数量
 2. linear embedding：把 patch 维度映射到维度 C（超参数，文章设为 96）
