@@ -37,13 +37,13 @@ GIF 取自：[https://ai.googleblog.com/2017/08/transformer-novel-neural-network
 前馈网络：单隐藏层 MLP，ReLU 激活中间层，隐层数量 2048，输出层不激活
 <a name="MhEtq"></a>
 #### Positional Embedding
-时序信息编码：利用三角函数计算，与 embedding 相加。<br />![image.png](https://cdn.nlark.com/yuque/0/2023/png/2787610/1678868138580-9706efec-af62-4a74-96ca-4d43f000f932.png#averageHue=%23faf8f6&clientId=u79566828-de0a-4&from=paste&height=64&id=u4186a23e&name=image.png&originHeight=102&originWidth=498&originalType=binary&ratio=1.25&rotation=0&showTitle=false&size=21127&status=done&style=none&taskId=u0bb8a989-caf0-4a6f-96e2-2242b157946&title=&width=314.3999938964844)<br />下图可视化了这样的 embedding（pos 表示 word 在序列中的位置，i 表示 embedding 的 feature 下标）<br />[https://zhuanlan.zhihu.com/p/338592312](https://zhuanlan.zhihu.com/p/338592312)<br />![](https://cdn.nlark.com/yuque/0/2023/webp/2787610/1678868004040-03ee6a93-bab8-47d9-aff2-0959f5536411.webp#averageHue=%23f2f5f5&clientId=u79566828-de0a-4&from=paste&height=288&id=u04f2314d&originHeight=509&originWidth=1042&originalType=url&ratio=1.25&rotation=0&showTitle=false&status=done&style=none&taskId=ua593755a-4d31-424a-837a-b1a3f2b856a&title=&width=590)
+时序信息编码：利用三角函数计算，与 embedding 相加。<br />![image.png](figures/pe-formula.png)
 
 - 任何长度的句子，同一个位置的 positional embedding 相同
 - 任何两个位置的 positional embedding 不同（最后一维的波长高达 10000 * 2\pi，一般达不到）
 - 相对位置关系可以表示：pos + k 可以用 pos 与 k 来线性表示
 
-![image.png](https://cdn.nlark.com/yuque/0/2023/png/2787610/1678868237695-ff019d52-026f-4cae-b4d3-4ea2f5089781.png#averageHue=%23efefef&clientId=u79566828-de0a-4&from=paste&height=214&id=ua3a4c158&name=image.png&originHeight=388&originWidth=830&originalType=binary&ratio=1.25&rotation=0&showTitle=false&size=104126&status=done&style=none&taskId=u7e265997-badb-4197-bad6-c7d64a6e26a&title=&width=457)
+![image.png](figures/pe.png)
 <a name="oMqWD"></a>
 #### Linear 层
 文中说 embedding 层和 decoder 后的 linear 层共用参数的意思是，最后会把输出的 embedding 与所有词的 embedding 内积，用来算 softmax（听起来效率很低？）
@@ -85,13 +85,13 @@ Transformer 去掉 encoder，只使用 decoder，更利于长句子
    - strided：一个head对前$\sqrt{n}$个做attention，一个head每隔$\sqrt{n}$做attention，这样两层attention后，正好所有token都被考虑到，相当于把attention分解成相邻的和远距离的。
       - 这种方法适合图像这种本身就有stride语义的，比如每隔$\sqrt{n}$做attention对应图像的列（下图二），下图右表示，stride=4情况下，每行表示输出（深蓝）经过第一个head连接的（中蓝）和经过第二个head连接的（浅蓝）。
 
-![image.png](https://cdn.nlark.com/yuque/0/2023/png/2787610/1679381437448-373ea13a-d7da-4baa-a501-664b74ca32a6.png#averageHue=%23dddddd&clientId=ufd1b1cc9-8e98-4&from=paste&height=164&id=u626872c8&name=image.png&originHeight=205&originWidth=442&originalType=binary&ratio=1.25&rotation=0&showTitle=false&size=2641&status=done&style=none&taskId=u6a13bea6-c662-428b-93ef-61d7c5af71a&title=&width=353.6)![image.png](https://cdn.nlark.com/yuque/0/2023/png/2787610/1679381443726-4042e550-491f-4303-9003-28275adaf02c.png#averageHue=%23b7c6d8&clientId=ufd1b1cc9-8e98-4&from=paste&height=162&id=u63e44693&name=image.png&originHeight=432&originWidth=432&originalType=binary&ratio=1.25&rotation=0&showTitle=false&size=6046&status=done&style=none&taskId=ud7a7d491-a7d8-4fb0-ad92-57c42e84c92&title=&width=161.60000610351562)
+![image.png](figures/sparse-strided.png)
 
       - 对于NLP这种token没有周期性的，该方法不适合，比如，He, as a professional teacher在stride为2情况下，He想attend到teacher需要先attend到professional，但是He与professional、professional和teacher可能没有联系。换句话说，就是相对位置与token关联性可能无关。
    - fixed：
       - 每隔l个token**连续取c个**“锚点”（绝对位置），第一个head对前一个“锚点”后的所有token做注意力，第二个head对之前的所有“锚点”做注意力。。这样做的语义是c个“锚点”总结前l个token的信息，再通过第二个head向后传播，更符合自然语言的结构。注意下图对应c=1，但是c取1会影响性能，因为无法保证那一个位置的文本适合用于总结前文信息，文章实际取用c=8/16/32，l取128/256。
 
-![image.png](https://cdn.nlark.com/yuque/0/2023/png/2787610/1679381635111-29fb83a1-4344-4385-8cac-6aadd6c48d17.png#averageHue=%23dfdfdf&clientId=ufd1b1cc9-8e98-4&from=paste&height=169&id=u2a3103bd&name=image.png&originHeight=211&originWidth=451&originalType=binary&ratio=1.25&rotation=0&showTitle=false&size=2492&status=done&style=none&taskId=u82e30d8d-d444-4edf-9d88-da4c2413901&title=&width=360.8)![image.png](https://cdn.nlark.com/yuque/0/2023/png/2787610/1679381647964-f2618b08-68c5-466b-a584-aa7ae1b32e59.png#averageHue=%23d2d2d2&clientId=ufd1b1cc9-8e98-4&from=paste&height=161&id=uf02e1497&name=image.png&originHeight=437&originWidth=436&originalType=binary&ratio=1.25&rotation=0&showTitle=false&size=6206&status=done&style=none&taskId=u0dc387ef-4b25-4ba8-bfc5-fb5c33599e1&title=&width=160.80001831054688)
+![image.png](figures/sparse-fixed.png)
 
       - 如果使用多个head，让每个head在l个范围内取不同的c个，比如一个head取121-128，一个head取113-120，会优于都取121-128。
 <a name="DRvbv"></a>
